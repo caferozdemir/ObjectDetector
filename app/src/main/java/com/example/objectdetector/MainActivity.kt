@@ -10,7 +10,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.objectdetector.databinding.ActivityMainBinding
+import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
@@ -19,13 +19,16 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var viewFinder: PreviewView
+    private lateinit var graphicOverlay: GraphicOverlay
     private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
+
+        viewFinder = findViewById(R.id.viewFinder)
+        graphicOverlay = findViewById(R.id.graphicOverlay)
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -47,14 +50,14 @@ class MainActivity : AppCompatActivity() {
             val preview = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(viewFinder.surfaceProvider)
                 }
 
             val imageAnalyzer = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, ObjectAnalyzer(binding.graphicOverlay))
+                    it.setAnalyzer(cameraExecutor, ObjectAnalyzer(graphicOverlay))
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
